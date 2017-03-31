@@ -7,20 +7,20 @@ from flask_restful_swagger_2 import Resource, swagger
 from mongoalchemy.exceptions import ExtraValueException
 
 from qube.src.api.decorators import login_required
-from qube.src.api.swagger_models.hello import HelloModel # noqa: ignore=I100
-from qube.src.api.swagger_models.hello import HelloModelPost # noqa: ignore=I100
-from qube.src.api.swagger_models.hello import HelloModelPostResponse # noqa: ignore=I100
-from qube.src.api.swagger_models.hello import HelloModelPut # noqa: ignore=I100
+from qube.src.api.swagger_models.testpythonresource import TestPythonResourceModel # noqa: ignore=I100
+from qube.src.api.swagger_models.testpythonresource import TestPythonResourceModelPost # noqa: ignore=I100
+from qube.src.api.swagger_models.testpythonresource import TestPythonResourceModelPostResponse # noqa: ignore=I100
+from qube.src.api.swagger_models.testpythonresource import TestPythonResourceModelPut # noqa: ignore=I100
 
 from qube.src.api.swagger_models.parameters import (
     body_post_ex, body_put_ex, header_ex, path_ex, query_ex)
 from qube.src.api.swagger_models.response_messages import (
     del_response_msgs, ErrorModel, get_response_msgs, post_response_msgs,
     put_response_msgs)
-from qube.src.commons.error import HelloServiceError
+from qube.src.commons.error import TestPythonResourceServiceError
 from qube.src.commons.log import Log as LOG
 from qube.src.commons.utils import clean_nonserializable_attributes
-from qube.src.services.helloservice import HelloService
+from qube.src.services.testpythonresourceservice import TestPythonResourceService
 
 EMPTY = ''
 get_details_params = [header_ex, path_ex, query_ex]
@@ -30,25 +30,25 @@ get_params = [header_ex]
 post_params = [header_ex, body_post_ex]
 
 
-class HelloItemController(Resource):
+class TestPythonResourceItemController(Resource):
     @swagger.doc(
         {
-            'tags': ['Hello'],
-            'description': 'Hello get operation',
+            'tags': ['TestPythonResource'],
+            'description': 'TestPythonResource get operation',
             'parameters': get_details_params,
             'responses': get_response_msgs
         }
     )
     @login_required
     def get(self, authcontext, entity_id):
-        """gets an hello item that omar has changed
+        """gets an testpythonresource item that omar has changed
         """
         try:
             LOG.debug("Get details by id %s ", entity_id)
-            data = HelloService(authcontext['context'])\
+            data = TestPythonResourceService(authcontext['context'])\
                 .find_by_id(entity_id)
             clean_nonserializable_attributes(data)
-        except HelloServiceError as e:
+        except TestPythonResourceServiceError as e:
             LOG.error(e)
             return ErrorModel(**{'error_code': str(e.errors.value),
                                  'error_message': e.args[0]}), e.errors
@@ -56,12 +56,12 @@ class HelloItemController(Resource):
             LOG.error(e)
             return ErrorModel(**{'error_code': '400',
                                  'error_message': e.args[0]}), 400
-        return HelloModel(**data), 200
+        return TestPythonResourceModel(**data), 200
 
     @swagger.doc(
         {
-            'tags': ['Hello'],
-            'description': 'Hello put operation',
+            'tags': ['TestPythonResource'],
+            'description': 'TestPythonResource put operation',
             'parameters': put_params,
             'responses': put_response_msgs
         }
@@ -69,14 +69,14 @@ class HelloItemController(Resource):
     @login_required
     def put(self, authcontext, entity_id):
         """
-        updates an hello item
+        updates an testpythonresource item
         """
         try:
-            model = HelloModelPut(**request.get_json())
+            model = TestPythonResourceModelPut(**request.get_json())
             context = authcontext['context']
-            HelloService(context).update(model, entity_id)
+            TestPythonResourceService(context).update(model, entity_id)
             return EMPTY, 204
-        except HelloServiceError as e:
+        except TestPythonResourceServiceError as e:
             LOG.error(e)
             return ErrorModel(**{'error_code': str(e.errors.value),
                                  'error_message': e.args[0]}), e.errors
@@ -91,8 +91,8 @@ class HelloItemController(Resource):
 
     @swagger.doc(
         {
-            'tags': ['Hello'],
-            'description': 'Hello delete operation',
+            'tags': ['TestPythonResource'],
+            'description': 'TestPythonResource delete operation',
             'parameters': delete_params,
             'responses': del_response_msgs
         }
@@ -100,12 +100,12 @@ class HelloItemController(Resource):
     @login_required
     def delete(self, authcontext, entity_id):
         """
-        Delete hello item
+        Delete testpythonresource item
         """
         try:
-            HelloService(authcontext['context']).delete(entity_id)
+            TestPythonResourceService(authcontext['context']).delete(entity_id)
             return EMPTY, 204
-        except HelloServiceError as e:
+        except TestPythonResourceServiceError as e:
             LOG.error(e)
             return ErrorModel(**{'error_code': str(e.errors.value),
                                  'error_message': e.args[0]}), e.errors
@@ -119,11 +119,11 @@ class HelloItemController(Resource):
                                  'error_message': ex.args[0]}), 500
 
 
-class HelloController(Resource):
+class TestPythonResourceController(Resource):
     @swagger.doc(
         {
-            'tags': ['Hello'],
-            'description': 'Hello get operation',
+            'tags': ['TestPythonResource'],
+            'description': 'TestPythonResource get operation',
             'parameters': get_params,
             'responses': get_response_msgs
         }
@@ -131,17 +131,17 @@ class HelloController(Resource):
     @login_required
     def get(self, authcontext):
         """
-        gets all hello items
+        gets all testpythonresource items
         """
         LOG.debug("Serving  Get all request")
-        list = HelloService(authcontext['context']).get_all()
+        list = TestPythonResourceService(authcontext['context']).get_all()
         # normalize the name for 'id'
         return list, 200
 
     @swagger.doc(
         {
-            'tags': ['Hello'],
-            'description': 'Hello create operation',
+            'tags': ['TestPythonResource'],
+            'description': 'TestPythonResource create operation',
             'parameters': post_params,
             'responses': post_response_msgs
         }
@@ -149,14 +149,14 @@ class HelloController(Resource):
     @login_required
     def post(self, authcontext):
         """
-        Adds a hello item.
+        Adds a testpythonresource item.
         """
         try:
-            model = HelloModelPost(**request.get_json())
-            result = HelloService(authcontext['context'])\
+            model = TestPythonResourceModelPost(**request.get_json())
+            result = TestPythonResourceService(authcontext['context'])\
                 .save(model)
 
-            response = HelloModelPostResponse()
+            response = TestPythonResourceModelPostResponse()
             for key in response.properties:
                 response[key] = result[key]
 
